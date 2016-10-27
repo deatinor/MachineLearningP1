@@ -11,6 +11,9 @@ Made by group #37:
 
 import numpy as np
 
+from helpers import batch_iter
+
+
 
 
 # ***********************************
@@ -27,12 +30,20 @@ def compute_loss(y, tx, w):
 
 
 def compute_gradient(y, tx, w):
-    """Calculates the gradient on a """
+    """Calculates the gradient with MSE."""
     N = y.shape[0]
     e = y - tx @ w
     gradient = - (tx.T @ e) / N
     return gradient
 
+
+
+def compute_stoch_gradient(y, tx, w):
+    """Calculates the gradient of SGD using MSE."""
+    N = y.shape[0]
+    e = y - tx @ w
+    gradient = (tx.T @ e) / (-N)
+    return gradient
 
 
 def build_poly(x, degree):
@@ -67,6 +78,8 @@ def split_data(x, y, ratio, seed=1):
 
 
 
+
+
 # ***********************************
 #       Regression functions
 # ***********************************
@@ -91,7 +104,7 @@ def least_squares_GD(y, tx, initial_w, max_iters, gamma):
 
 def least_squares_SGD(y, tx, initial_w, max_iters, gamma):
     """Stochastic gradient descent algorithm using MSE."""
-    return least_squares_minibatch(y, tx, initial_w, batch_size=1, max_iters, gamma)
+    return least_squares_minibatch(y, tx, initial_w, 1, max_iters, gamma)
 
 def least_squares_minibatch(y, tx, initial_w, batch_size, max_iters, gamma):
     """Mini-batch stochastic gradient descent using MSE."""
@@ -112,7 +125,7 @@ def least_squares_minibatch(y, tx, initial_w, batch_size, max_iters, gamma):
         batch_y = ys[n]
         batch_tx = txs[n]
         # compute gradient
-        g = compute_gradient(batch_y, batch_tx, w)
+        g = compute_stoch_gradient(batch_y, batch_tx, w)
 
         # update w
         w -= gamma * g
@@ -126,7 +139,7 @@ def least_squares_minibatch(y, tx, initial_w, batch_size, max_iters, gamma):
 
 def least_squares(y, tx):
     """Returns the optimal weights and the loss"""
-    w = np.linalg.inv(tx.T.dot(tx)).dot(tx.T).dot(y)
+    w = np.linalg.solve(tx.T.dot(tx),tx.T.dot(y))
     loss = compute_loss(y, tx, w)
     return w, loss
 
@@ -135,6 +148,18 @@ def least_squares(y, tx):
 def ridge_regression(y, tx, lambda_):
     """Calculates optimal weights using ridge regression."""
     N = y.shape[0]
-    w = np.linalg.inv(tx.T.dot(tx) - 2 * N * lamb * np.ones(tx.shape[1])).dot(tx.T).dot(y)
+    w = np.linalg.solve(tx.T.dot(tx) + (lambda_**2) * np.identity(tx.shape[1]), tx.T.dot(y))
     loss = compute_loss(y, tx, w)
     return w, loss
+
+
+
+def logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
+    """"""
+    pass
+
+
+
+def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
+    """"""
+    pass
