@@ -85,7 +85,7 @@ def split_data(x, y, ratio, seed=1):
 # ***********************************
 
 def least_squares_GD(y, tx, initial_w, max_iters, gamma):
-    """Gradient descent using MSE."""
+    """Linear regression using gradient descent"""
     # Initialize dynamic point to initial_w
     w = np.copy(initial_w)
 
@@ -103,7 +103,7 @@ def least_squares_GD(y, tx, initial_w, max_iters, gamma):
 
 
 def least_squares_SGD(y, tx, initial_w, max_iters, gamma):
-    """Stochastic gradient descent algorithm using MSE."""
+    """Linear regression using stochastic gradient descent algorithm"""
     return least_squares_minibatch(y, tx, initial_w, 1, max_iters, gamma)
 
 def least_squares_minibatch(y, tx, initial_w, batch_size, max_iters, gamma):
@@ -138,7 +138,8 @@ def least_squares_minibatch(y, tx, initial_w, batch_size, max_iters, gamma):
 
 
 def least_squares(y, tx):
-    """Returns the optimal weights and the loss"""
+    """Least Squares regression using the normal equiations
+        Returns the optimal weights and the loss"""
     w = np.linalg.solve(tx.T.dot(tx),tx.T.dot(y))
     loss = compute_loss(y, tx, w)
     return w, loss
@@ -146,7 +147,7 @@ def least_squares(y, tx):
 
 
 def ridge_regression(y, tx, lambda_):
-    """Calculates optimal weights using ridge regression."""
+    """Calculates optimal weights using ridge regression with normal equations"""
     N = y.shape[0]
     w = np.linalg.solve(tx.T.dot(tx) + (lambda_**2) * np.identity(tx.shape[1]), tx.T.dot(y))
     loss = compute_loss(y, tx, w)
@@ -154,12 +155,76 @@ def ridge_regression(y, tx, lambda_):
 
 
 
-def logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
-    """"""
-    pass
-
+def logistic_regression(y, tx, initial_w, max_iters, gamma):
+    """Logistic Regression using gradient descent"""
+    
+    #Init parameters
+    threshold = 1e-8
+    losses = []
+    w = np.copy(initial_w)
+    
+    # start the logistic regression
+    for iter in range(max_iters):
+        
+        #Calculate actual loss and gradient
+        loss = calculate_loss_logit(y, tx, w)
+        grad = calculate_gradient_logit(y, tx, w)
+        
+        #Update w
+        w = w - gamma*grad
+        
+        # converge criteria
+        losses.append(loss)
+        if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
+            break
+    return w, losses[-1]
 
 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
-    """"""
-    pass
+    """Regularized logistic regression using gradient descent"""
+   
+    #Init parameters
+    threshold = 1e-8
+    losses = []
+    w = np.copy(initial_w)
+    
+    # start the logistic regression
+    for iter in range(max_iters):
+        
+        #Calculate actual loss and gradient
+        loss = calculate_loss_logit(y, tx, w) + lambda_*np.sum(w*w)
+        grad = calculate_gradient_logit(y, tx, w) + 2*lambda_*w
+        
+        #Update w
+        w = w - gamma*grad
+        
+        # converge criteria
+        losses.append(loss)
+        if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
+            break
+    return w, losses[-1]
+    
+
+
+def sigmoid(t):
+    """applies sigmoid function on t."""
+    result = 1/(1+np.exp(-t))
+    return result
+
+def calculate_hessian_logit(y, tx, w):
+    """Returns the hessian of the loss function"""
+    sig = sigmoid(tx.dot(w))
+    S = np.identity(tx.shape[0])*(sig*(1-sig))
+    H = ((tx.T).dot(S)).dot(tx)
+    return H
+
+def calculate_gradient_logit(y, tx, w):
+    """compute the gradient of loss."""
+    grad = tx.T.dot(sigmoid(tx.dot(w))-y)
+    return grad
+
+def calculate_loss_logit(y, tx, w):
+    """compute the cost by negative log likelihood."""
+    log = np.log(1+np.exp(tx.dot(w)))
+    loss = np.ones(y.shape[0]).dot(log) - (y.T.dot(tx)).dot(w)
+    return loss
