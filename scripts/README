@@ -1,3 +1,5 @@
+Authors: Camila González Williamson, Stefano Savarè, Robin Weiskopf
+
 The submission consists in 4 main files.
 
 - run.py - It is the script that generates the best prediction that we obtained on Kaggle. WARNING:
