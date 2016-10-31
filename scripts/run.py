@@ -188,7 +188,7 @@ print('Test data processed')
 OUTPUT_PATH = 'predictions.csv' 
 y_pred = predict_labels(w, tX_final)
 create_csv_submission(ids_test, y_pred, OUTPUT_PATH)
-print('Output to'+OUTPUT_PATH)
+print('Output to '+OUTPUT_PATH)
 
 
 

@@ -1,0 +1,16 @@
+The submission consists in 4 main files.
+
+- run.py - It is the script that generates the best prediction that we obtained on Kaggle. WARNING:
+  16GB of RAM are advised to run this script.
+
+- implementations.py - It contains all the 6 functions that we were supposed to implement. In
+  addition we also added the regularized logistic regression with the Newton method and a lot of
+  other utility functions that we used.
+
+- project1_functions.ipynb - Jupyter notebook that contains an example of usage of all the 6
+  functions we were supposed to implement. It allows also to compare the results of the different
+  methods.
+
+- project1_submission.ipynb - All the functions and scripts used for the Kaggle submission. It
+  contains the function used for the cross validation and the script used to optimize the lambda
+  parameter of the ridge regression.
