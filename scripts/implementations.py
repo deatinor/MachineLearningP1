@@ -189,7 +189,7 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         
         # converge criteria
         losses.append(loss)
-        print(loss)
+
         if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
             break
     return w, losses[-1]
