@@ -106,6 +106,8 @@ def least_squares_GD(y, tx, initial_w, max_iters, gamma):
         g = compute_gradient(y, tx, w)
         # update w by gradient
         w -= gamma * g
+        if n_iter%1000==0:
+            print(n_iter)
 
     # compute loss
     loss = compute_loss(y, tx, w)
@@ -187,6 +189,7 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         
         # converge criteria
         losses.append(loss)
+
         if len(losses) > 1 and np.abs(losses[-1] - losses[-2]) < threshold:
             break
     return w, losses[-1]
@@ -204,6 +207,7 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     for iter in range(max_iters):
         
         #Calculate actual loss and gradient
+
         loss = calculate_loss_logit(y, tx, w) + lambda_*np.sum(w*w)
         grad = calculate_gradient_logit(y, tx, w) + 2*lambda_*w
         
@@ -226,12 +230,10 @@ def reg_logistic_regression_newton(y, tx, lambda_, initial_w, max_iters, gamma):
     
     # start the logistic regression
     for iter in range(max_iters):
-        
         #Calculate actual loss and gradient
         loss = calculate_loss_logit(y, tx, w) + lambda_*np.sum(w*w)
         grad = calculate_gradient_logit(y, tx, w) + 2*lambda_*w
         H = calculate_hessian_logit(y, tx, w) + 2*lambda_*np.identity(w.shape[0])
-        
         #Update w
         w = w - gamma*np.linalg.inv(H).dot(grad)
         
@@ -245,14 +247,17 @@ def reg_logistic_regression_newton(y, tx, lambda_, initial_w, max_iters, gamma):
 
 def sigmoid(t):
     """applies sigmoid function on t."""
+    t[t<-30]=-30
     result = 1/(1+np.exp(-t))
     return result
 
 def calculate_hessian_logit(y, tx, w):
     """Returns the hessian of the loss function"""
     sig = sigmoid(tx.dot(w))
-    S = np.identity(tx.shape[0])*(sig*(1-sig))
-    H = ((tx.T).dot(S)).dot(tx)
+
+    #S = np.identity(tx.shape[0])*(sig*(1-sig))
+    S = sig*(1-sig) 
+    H = ((tx.T)*S).dot(tx)
     return H
 
 def calculate_gradient_logit(y, tx, w):
@@ -262,6 +267,14 @@ def calculate_gradient_logit(y, tx, w):
 
 def calculate_loss_logit(y, tx, w):
     """compute the cost by negative log likelihood."""
-    log = np.log(1+np.exp(tx.dot(w)))
+    dot_product=tx.dot(w) 
+    log=np.zeros(dot_product.shape[0])
+    log[dot_product>40]=40
+    log[dot_product<=40] = np.log(1+np.exp(dot_product[dot_product<=40]))
     loss = np.ones(y.shape[0]).dot(log) - (y.T.dot(tx)).dot(w)
     return loss
+
+
+
+
+
